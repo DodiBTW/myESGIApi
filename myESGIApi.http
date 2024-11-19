@@ -1,0 +1,6 @@
+@myESGIApi_HostAddress = http://localhost:5115
+
+GET {{myESGIApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
