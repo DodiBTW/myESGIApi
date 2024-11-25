@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using myESGIApi.Data;
+using myESGIApi.Models;
 namespace myESGIApi.Controllers
 {
     [ApiController]

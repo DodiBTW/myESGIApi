@@ -1,4 +1,4 @@
-﻿namespace myESGIApi
+﻿namespace myESGIApi.Models
 {
     public class Post
     {

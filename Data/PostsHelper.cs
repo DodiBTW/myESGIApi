@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dapper;
+using myESGIApi.Models;
 
 namespace myESGIApi.Data
 {
