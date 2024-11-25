@@ -2,6 +2,7 @@ namespace myESGIApi
 {
     public class WeatherForecast
     {
+        // This class is only used to test whether issues are coming from the db or the project/container
         public DateOnly Date { get; set; }
 
         public int TemperatureC { get; set; }

@@ -28,7 +28,7 @@ namespace myESGIApi.Data
             _logger.LogInformation(AppContext.BaseDirectory);
         }
 
-        private static string GetConnectionString()
+        private static string? GetConnectionString()
         {
             if(ConnectionString != null)
             {
