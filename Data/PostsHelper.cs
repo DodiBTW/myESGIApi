@@ -1,26 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dapper;
-using myESGIApi.Models;
+using MyESGIApi.Models;
 
-namespace myESGIApi.Data
+namespace MyESGIApi.Data
 {
     public class PostsHelper
     {
         public static IEnumerable<Post> GetPosts()
         {
             using var connection = DatabaseHelper.GetConnection();
-            return connection.Query<Post>("SELECT * FROM Posts");
+            string query = @"
+                SELECT 
+                    id AS Id, 
+                    title AS Title, 
+                    description AS Description, 
+                    authorId, 
+                    img_url AS ImgUrl, 
+                    post_date AS PostDate
+                FROM posts";
+            return connection.Query<Post>(query);
         }
+
         public static Post? GetPostById(int id)
         {
             using var connection = DatabaseHelper.GetConnection();
-            return connection.QueryFirstOrDefault<Post>("SELECT * FROM Posts WHERE Id = @Id", new { Id = id });
+            string query = @"
+                SELECT 
+                    id AS Id, 
+                    title AS Title, 
+                    description AS Description, 
+                    authorId, 
+                    img_url AS ImgUrl, 
+                    post_date AS PostDate
+                FROM posts
+                WHERE id = @Id";
+            return connection.QueryFirstOrDefault<Post>(query, new { Id = id });
         }
+
         public static IEnumerable<Post> GetPostsByAuthorId(int authorId)
         {
             using var connection = DatabaseHelper.GetConnection();
-            return connection.Query<Post>("SELECT * FROM Posts WHERE AuthorId = @AuthorId ORDER BY Date DESC", new { AuthorId = authorId });
+            string query = @"
+                SELECT 
+                    id AS Id, 
+                    title AS Title, 
+                    description AS Description, 
+                    authorId, 
+                    img_url AS ImgUrl, 
+                    post_date AS PostDate
+                FROM posts
+                WHERE authorId = @AuthorId
+                ORDER BY post_date DESC";
+            return connection.Query<Post>(query, new { AuthorId = authorId });
         }
     }
 }

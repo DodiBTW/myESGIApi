@@ -1,4 +1,4 @@
-namespace myESGIApi
+namespace MyESGIApi
 {
     public class WeatherForecast
     {

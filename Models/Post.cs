@@ -1,5 +1,6 @@
-﻿using myESGIApi.Data;
-namespace myESGIApi.Models
+﻿using MyESGIApi.Data;
+
+namespace MyESGIApi.Models
 {
     public class Post
     {
@@ -10,15 +11,16 @@ namespace myESGIApi.Models
         public string? ImgUrl { get; set; }
         public DateTime PostDate { get; set; }
         public Post() { }
-        public Post(int id, string title, string description, int authorId, string img_url, DateTime post_date)
+        public Post(int id, string title, string? description, int authorId, string? imgUrl, DateTime postDate)
         {
             Id = id;
             Title = title;
             Description = description;
             AuthorId = authorId;
-            ImgUrl = img_url;
-            PostDate = post_date;
+            ImgUrl = imgUrl;
+            PostDate = postDate;
         }
+
         public User? GetPostAuthor()
         {
             return UserHelper.GetUserById(AuthorId);

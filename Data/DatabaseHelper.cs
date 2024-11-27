@@ -3,7 +3,7 @@ using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace myESGIApi.Data
+namespace MyESGIApi.Data
 {
     public class DatabaseHelper
     {

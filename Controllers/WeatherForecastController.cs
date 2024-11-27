@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace myESGIApi.Controllers
+namespace MyESGIApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]

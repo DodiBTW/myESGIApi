@@ -1,5 +1,5 @@
 
-namespace myESGIApi
+namespace MyESGIApi
 {
     public class Program
     {
@@ -21,7 +21,7 @@ namespace myESGIApi
                 app.UseSwaggerUI();
             }
 
-            // app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

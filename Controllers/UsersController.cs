@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using myESGIApi.Data;
-using myESGIApi.Models;
-namespace myESGIApi.Controllers
+using MyESGIApi.Data;
+using MyESGIApi.Models;
+namespace MyESGIApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -11,8 +11,12 @@ namespace myESGIApi.Controllers
         [HttpGet(Name = "GetUsers")]
         public IEnumerable<User> Get()
         {
-            // This is the function for when we have the url {oururl}/Posts/
             return UserHelper.GetUsers();
+        }
+        [HttpGet("{id}")]
+        public User? Get(int id)
+        {
+            return UserHelper.GetUserById(id);
         }
     }
 }
