@@ -18,5 +18,11 @@ namespace MyESGIApi.Controllers
         {
             return UserHelper.GetUserById(id);
         }
+        [HttpPost(Name = "register")]
+        public string Register(string FirstName, string LastName, string Email, string Password)
+        {
+            //return UserHelper.UserRegister(user.FirstName, user.LastName, user.EmailAdress, user.Password, user.ProfilePictureUrl, user.Role);
+            return UserHelper.UserRegister(FirstName, LastName, Email, Password);
+        }
     }
 }
