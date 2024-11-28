@@ -5,24 +5,40 @@ using MyESGIApi.Models;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class UsersController
+    [Route("users")]
+    public class UsersController : ControllerBase
     {
+        [HttpPost("Login")]
+        public IActionResult Login(string email, string password)
+        {
+            if (!UserHelper.UserExists(email))
+                return new NotFoundObjectResult("User does not exist");
+            User? user = UserHelper.GetUserByEmail(email);
+            if (user != null && user.CheckPassword(password))
+                // Success
+                return new OkObjectResult("Helo");
+            return new NotFoundObjectResult("Invalid Credentials");
+        }
+
         [HttpGet(Name = "GetUsers")]
         public IEnumerable<User> Get()
         {
             return UserHelper.GetUsers();
         }
+
         [HttpGet("{id}")]
         public User? Get(int id)
         {
             return UserHelper.GetUserById(id);
         }
-        [HttpPost(Name = "register")]
-        public string Register(string FirstName, string LastName, string Email, string Password)
+
+        [HttpPost("register")]
+        public IActionResult Register(string FirstName, string LastName, string Email, string Password)
         {
-            //return UserHelper.UserRegister(user.FirstName, user.LastName, user.EmailAdress, user.Password, user.ProfilePictureUrl, user.Role);
-            return UserHelper.UserRegister(FirstName, LastName, Email, Password);
+            string resp = UserHelper.UserRegister(FirstName, LastName, Email, Password);
+            if (resp == "Account successfully created")
+                return CreatedAtAction(nameof(Get), new { id = Email }, new { message = resp });
+            return new NotFoundObjectResult(resp);
         }
     }
 }

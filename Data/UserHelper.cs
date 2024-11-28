@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity.Client;
@@ -9,7 +10,7 @@ namespace MyESGIApi.Data
 {
     public class UserHelper
     {
-        
+        private static string SelectStatement = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, password AS Password, role AS Role, date_joined AS JoinDate, email_address AS EmailAdress, profile_picture_url AS ProfilePictureUrl FROM users ";
         public static string UserRegister(string first_name, string last_name, string email, string password, string? profile_picture_url = null, string? role = "student")
         {
             if (!FormatChecker.IsValidPassword(password)) return "You have entered an invalid password, please make sure your password is robust enough.";
@@ -33,57 +34,29 @@ namespace MyESGIApi.Data
                 WHERE email_address = @Email";
             return connection.ExecuteScalar<int>(query, new { Email = email }) > 0;
         }
+        public static User? GetUserByEmail(string email)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            string query = SelectStatement + " WHERE email_address = @Email";
+            return connection.QueryFirstOrDefault<User>(query, new { Email = email });
+        }
         public static User? GetUserById(int id)
         {
             using var connection = DatabaseHelper.GetConnection();
-            string query = @"
-                SELECT 
-                    id AS Id, 
-                    first_name AS FirstName, 
-                    last_name AS LastName, 
-                    password AS Password, 
-                    role AS Role, 
-                    date_joined AS JoinDate, 
-                    email_address AS EmailAdress
-                FROM users
-                WHERE id = @Id";
+            string query = SelectStatement + " WHERE id = @Id";
             return connection.QueryFirstOrDefault<User>(query, new { Id = id });
         }
         public static IEnumerable<User> GetUsers()
         {
             using var connection = DatabaseHelper.GetConnection();
-            string query = @"
-                SELECT 
-                    id AS Id, 
-                    first_name AS FirstName, 
-                    last_name AS LastName, 
-                    password AS Password, 
-                    role AS Role, 
-                    date_joined AS JoinDate, 
-                    email_address AS EmailAdress,
-                    profile_picture_url AS ProfilePictureUrl
-                FROM users";
-            return connection.Query<User>(query);
+            return connection.Query<User>(SelectStatement);
         }
         public static IEnumerable<User> GetUsersByString(string searchTerm, int page = 1)
         {
             using var connection = DatabaseHelper.GetConnection();
-            string query = @"
-                SELECT 
-                    id AS Id, 
-                    first_name AS FirstName, 
-                    last_name AS LastName, 
-                    password AS Password, 
-                    role AS Role, 
-                    date_joined AS JoinDate, 
-                    email_address AS EmailAdress,
-                    profile_picture_url AS ProfilePictureUrl
-                FROM users
-                WHERE first_name LIKE @SearchTerm OR last_name LIKE @SearchTerm
-                LIMIT 20 OFFSET @Offset";
+            string query = SelectStatement + @" WHERE first_name LIKE @SearchTerm OR last_name LIKE @SearchTerm LIMIT 20 OFFSET @Offset";
             return connection.Query<User>(query, new { SearchTerm = $"%{searchTerm}%", Offset = (page - 1) * 20 });
         }
-
         public static void UpdateUserPassword(int user_id, string newHashedPassword)
         {
             using var connection = DatabaseHelper.GetConnection();
