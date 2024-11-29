@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity.Client;
 using MyESGIApi.Models;
 using Utils;
+using MyESGIApi.Services;
 namespace MyESGIApi.Data
 {
     public class UserHelper

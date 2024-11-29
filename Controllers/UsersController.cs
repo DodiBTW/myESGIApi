@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MyESGIApi.Data;
 using MyESGIApi.Models;
+using MyESGIApi.Services;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
@@ -14,12 +15,23 @@ namespace MyESGIApi.Controllers
             if (!UserHelper.UserExists(email))
                 return new NotFoundObjectResult("User does not exist");
             User? user = UserHelper.GetUserByEmail(email);
-            if (user != null && user.CheckPassword(password))
-                // Success
-                return new OkObjectResult("Helo");
+            if (user != null && user.CheckPassword(password)) {
+                var token = JWTHelper.GenerateJWT(user);
+                return new OkObjectResult(new { token });
+            }
             return new NotFoundObjectResult("Invalid Credentials");
         }
-
+        [HttpPost("Register")]
+        public IActionResult Register(string FirstName, string LastName, string Email, string Password)
+        {
+            string resp = UserHelper.UserRegister(FirstName, LastName, Email, Password);
+            if (resp == "Account successfully created"){
+                User? user = UserHelper.GetUserByEmail(Email);
+                if (user == null) return new NotFoundObjectResult("User not found");
+                return new OkObjectResult(new { token = JWTHelper.GenerateJWT(user) });
+            }
+            return new NotFoundObjectResult(resp);
+        }
         [HttpGet(Name = "GetUsers")]
         public IEnumerable<User> Get()
         {
@@ -32,13 +44,6 @@ namespace MyESGIApi.Controllers
             return UserHelper.GetUserById(id);
         }
 
-        [HttpPost("register")]
-        public IActionResult Register(string FirstName, string LastName, string Email, string Password)
-        {
-            string resp = UserHelper.UserRegister(FirstName, LastName, Email, Password);
-            if (resp == "Account successfully created")
-                return CreatedAtAction(nameof(Get), new { id = Email }, new { message = resp });
-            return new NotFoundObjectResult(resp);
-        }
+
     }
 }
