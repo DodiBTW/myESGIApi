@@ -14,7 +14,7 @@ namespace MyESGIApi.Data
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
             var serviceProvider = new ServiceCollection()
                 .AddLogging(config => config.AddConsole())
@@ -23,24 +23,26 @@ namespace MyESGIApi.Data
             _logger = serviceProvider
                 .GetRequiredService<ILoggerFactory>()
                 .CreateLogger<DatabaseHelper>();
-            ConnectionString = configuration.GetConnectionString("DefaultConnection");
-            _logger.LogInformation("Initializing DatabaseHelper");
-            _logger.LogInformation(AppContext.BaseDirectory);
+            ConnectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+
+            if (ConnectionString == null)
+            {
+                _logger.LogWarning("Environment variable DEFAULT_CONNECTION not found, falling back to appsettings.json");
+                ConnectionString = configuration.GetConnectionString("DefaultConnection");
+            }
+            else if (ConnectionString != null)
+            {
+                _logger.LogInformation("Database connection string initialized.");
+            }
+            else
+            {
+                _logger.LogError("Database connection string is not set.");
+            }
         }
 
         private static string? GetConnectionString()
         {
-            if(ConnectionString != null)
-            {
-                return ConnectionString;
-            }
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-            ConnectionString = configuration.GetConnectionString("DefaultConnection");
-            return ConnectionString;
+            return ConnectionString != null ? ConnectionString : throw new Exception("Database connection string is not set.");
         }
 
         public static SqlConnection GetConnection()

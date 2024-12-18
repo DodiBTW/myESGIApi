@@ -5,7 +5,7 @@ using MyESGIApi.Models;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("posts")]
     public class PostsController
     {
         [HttpGet(Name = "GetPosts")]
