@@ -7,6 +7,7 @@ using Microsoft.Identity.Client;
 using MyESGIApi.Models;
 using Utils;
 using MyESGIApi.Services;
+using static MyESGIApi.Data.DatabaseHelper;
 namespace MyESGIApi.Data
 {
     public class UserHelper
@@ -19,7 +20,7 @@ namespace MyESGIApi.Data
             if (UserExists(email)) return "An account with that email already exists!";
 
             password = BCrypt.Net.BCrypt.HashPassword(password);
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 INSERT INTO users (first_name, last_name, email_address, password, role, profile_picture_url)
                 VALUES (@FirstName, @LastName, @Email, @Password, @Role, @ProfilePictureUrl)";
@@ -28,7 +29,7 @@ namespace MyESGIApi.Data
         }
         public static bool UserExists(string email)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 SELECT COUNT(*) 
                 FROM users 
@@ -37,30 +38,30 @@ namespace MyESGIApi.Data
         }
         public static User? GetUserByEmail(string email)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = SelectStatement + " WHERE email_address = @Email";
             return connection.QueryFirstOrDefault<User>(query, new { Email = email });
         }
         public static User? GetUserById(int id)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = SelectStatement + " WHERE id = @Id";
             return connection.QueryFirstOrDefault<User>(query, new { Id = id });
         }
         public static IEnumerable<User> GetUsers()
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             return connection.Query<User>(SelectStatement);
         }
         public static IEnumerable<User> GetUsersByString(string searchTerm, int page = 1)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = SelectStatement + @" WHERE first_name LIKE @SearchTerm OR last_name LIKE @SearchTerm LIMIT 20 OFFSET @Offset";
             return connection.Query<User>(query, new { SearchTerm = $"%{searchTerm}%", Offset = (page - 1) * 20 });
         }
         public static void UpdateUserPassword(int user_id, string newHashedPassword)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 UPDATE users
                 SET password = @Password

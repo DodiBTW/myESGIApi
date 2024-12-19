@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using Dapper;
 using MyESGIApi.Models;
-
+using static MyESGIApi.Data.DatabaseHelper;
 namespace MyESGIApi.Data
 {
     public class PostsHelper
     {
         public static IEnumerable<Post> GetPosts()
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 SELECT 
                     id AS Id, 
@@ -24,7 +24,7 @@ namespace MyESGIApi.Data
 
         public static Post? GetPostById(int id)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 SELECT 
                     id AS Id, 
@@ -40,7 +40,7 @@ namespace MyESGIApi.Data
 
         public static IEnumerable<Post> GetPostsByAuthorId(int authorId)
         {
-            using var connection = DatabaseHelper.GetConnection();
+            using var connection = GetConnection();
             string query = @"
                 SELECT 
                     id AS Id, 
