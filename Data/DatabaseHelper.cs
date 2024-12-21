@@ -2,6 +2,7 @@
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using DotNetEnv;
 
 namespace MyESGIApi.Data
 {
@@ -12,6 +13,7 @@ namespace MyESGIApi.Data
 
         static DatabaseHelper()
         {
+            Env.Load();
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)

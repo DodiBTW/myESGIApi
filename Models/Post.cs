@@ -10,7 +10,7 @@ namespace MyESGIApi.Models
         public int AuthorId { get; set; }
         public string? ImgUrl { get; set; }
         public DateTime PostDate { get; set; }
-        public Post() { }
+        public Post() { } // Used for automatic dapper object creation
         public Post(int id, string title, string? description, int authorId, string? imgUrl, DateTime postDate)
         {
             Id = id;

@@ -7,6 +7,7 @@
     <UserSecretsId>895946de-9aa2-4391-b03e-a9dffd9bc6dd</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <StartupObject>MyESGIApi.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,9 +17,11 @@
     <PackageReference Include="FSharp.Core" Version="9.0.100" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
+    
   </ItemGroup>
 
   <ItemGroup>

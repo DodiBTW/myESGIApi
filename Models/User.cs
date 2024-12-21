@@ -12,7 +12,7 @@ namespace MyESGIApi.Models
         public DateTime? JoinDate { get; set; }
         public string EmailAdress { get; set; }
         public string? ProfilePictureUrl { get; set; }
-        public User() {}
+        public User() {} // Used for automatic dapper object creation
         public User(int id, string firstName, string lastName, string email_address,string role, string? password = null, DateTime? dateJoined = null,  string?  profile_picture_url = null)
         {
             Id = id;
