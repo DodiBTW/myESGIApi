@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using MyESGIApi.Data;
 using MyESGIApi.Models;
+using Utils;
+using Microsoft.AspNetCore.Authorization;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
     [Route("posts")]
-    public class PostsController
+    public class PostsController : ControllerBase 
     {
         [HttpGet(Name = "GetPosts")]
         public IEnumerable<Post> Get()
         {
-            // This is the function for when we have the url {oururl}/Posts/
             return PostsHelper.GetPosts();
         }
         [HttpGet("{id}")]
@@ -24,5 +25,21 @@ namespace MyESGIApi.Controllers
         {
             return PostsHelper.GetPostsByAuthorId(authorId);
         }
+        [Authorize]
+        [HttpPost]
+        public IActionResult CreatePost(Post post)
+        {
+            string? userId = HttpContext.User.FindFirst("UserId")?.Value;
+            if (userId == null) return Unauthorized("User not logged in");
+            post.AuthorId = int.Parse(userId);
+            var fsPost = post.ConvertToFsharpPost();
+            if (!Utils.FormatChecker.CheckPostValid(fsPost))
+            {
+                return new BadRequestObjectResult("Invalid post format");
+            }
+            PostsHelper.CreatePost(post);
+            return new OkResult();
+        }
+
     }
 }

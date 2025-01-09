@@ -57,7 +57,5 @@ namespace MyESGIApi.Controllers
         {
             return UserHelper.GetUserById(id);
         }
-
-
     }
 }

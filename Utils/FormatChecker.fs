@@ -1,6 +1,6 @@
 ﻿namespace Utils
-open Models
 module FormatChecker =
+    open Models
     open System
     open System.Text.RegularExpressions
     let IsValidEmail(email : string) : bool = 
@@ -20,3 +20,12 @@ module FormatChecker =
         | Some password -> IsValidPassword(password)
         | None -> true // Debatable
         && IsValidEmail(user.Email)
+    let CheckPostValid(post : Post) : bool = 
+        // Test function to check post data type (unused for now)
+        post.Title.Length > 0 && post.Title.Length < 64
+        && 
+        (match post.Description with
+            | Some description -> description.Length > 0 && description.Length < 512
+            | None -> true
+        )
+        && post.PostDate <= DateTime.Now && post.PostDate >= DateTime.Now.AddDays(-2)

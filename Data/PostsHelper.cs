@@ -56,5 +56,14 @@ namespace MyESGIApi.Data
                 ORDER BY post_date DESC";
             return connection.Query<Post>(query, new { AuthorId = authorId });
         }
+        public static bool CreatePost(Post post)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                INSERT INTO posts (title, description, authorId, img_url, post_date)
+                VALUES (@Title, @Description, @AuthorId, @ImgUrl, @PostDate)
+                ";
+            return connection.Execute(query, post) > 0;
+        }
     }
 }
