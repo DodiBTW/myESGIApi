@@ -26,7 +26,7 @@ namespace MyESGIApi.Controllers
             return PostsHelper.GetPostsByAuthorId(authorId);
         }
         [Authorize]
-        [HttpPost]
+        [HttpPost(Name = "CreatePost")]
         public IActionResult CreatePost(Post post)
         {
             string? userId = HttpContext.User.FindFirst("UserId")?.Value;
