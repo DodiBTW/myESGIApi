@@ -18,7 +18,9 @@ namespace MyESGIApi.Data
                     authorId, 
                     img_url AS ImgUrl, 
                     post_date AS PostDate
-                FROM posts";
+                FROM posts
+                ORDER BY post_date DESC
+                ";
             return connection.Query<Post>(query);
         }
 

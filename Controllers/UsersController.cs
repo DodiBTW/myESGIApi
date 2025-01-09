@@ -12,14 +12,20 @@ namespace MyESGIApi.Controllers
         [HttpPost("Login")]
         public IActionResult Login(string email, string password)
         {
-            if (!UserHelper.UserExists(email))
+            if (!UserHelper.UserExists(email)) 
                 return new NotFoundObjectResult("User does not exist");
-            User? user = UserHelper.GetUserByEmail(email);
-            if (user != null && user.CheckPassword(password)) {
-                var token = JWTHelper.GenerateJWT(user);
-                return new OkObjectResult(new { token });
-            }
-            return new NotFoundObjectResult("Invalid Credentials");
+            User user = UserHelper.GetUserByEmail(email);
+            if (!user.CheckPassword(password)) 
+                return Unauthorized("Invalid Credentials");
+            var token = JWTHelper.GenerateJWT(user);
+            Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddMinutes(60)
+            });
+            return new OkObjectResult(new {message = "Login sucessful"});
         }
         [HttpPost("Register")]
         public IActionResult Register(string FirstName, string LastName, string Email, string Password)
