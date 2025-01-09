@@ -34,7 +34,15 @@ namespace MyESGIApi.Controllers
             if (resp == "Account successfully created"){
                 User? user = UserHelper.GetUserByEmail(Email);
                 if (user == null) return new NotFoundObjectResult("User not found");
-                return new OkObjectResult(new { token = JWTHelper.GenerateJWT(user) });
+                var token = JWTHelper.GenerateJWT(user);
+                Response.Cookies.Append("AuthToken", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.Lax,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddMinutes(60)
+                });
+                return new OkObjectResult(new { message = "Registered sucessfully"});
             }
             return new NotFoundObjectResult(resp);
         }
