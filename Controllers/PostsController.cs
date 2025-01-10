@@ -4,6 +4,7 @@ using MyESGIApi.Data;
 using MyESGIApi.Models;
 using Utils;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
@@ -29,9 +30,10 @@ namespace MyESGIApi.Controllers
         [HttpPost(Name = "CreatePost")]
         public IActionResult CreatePost(Post post)
         {
-            string? userId = HttpContext.User.FindFirst("UserId")?.Value;
-            if (userId == null) return Unauthorized("User not logged in");
-            post.AuthorId = int.Parse(userId);
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            post.AuthorId = UserHelper.GetUserByEmail(userEmail).Id;
             var fsPost = post.ConvertToFsharpPost();
             if (!Utils.FormatChecker.CheckPostValid(fsPost))
             {
