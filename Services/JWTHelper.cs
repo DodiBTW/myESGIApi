@@ -24,7 +24,6 @@ namespace MyESGIApi.Services
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            if (Encoding.UTF8.GetBytes(SecretKey).Length < 16) throw new Exception("Secret key too short");
             var token = new JwtSecurityToken(
                 issuer: Issuer,
                 audience: Audience,

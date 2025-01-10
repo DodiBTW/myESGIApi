@@ -15,6 +15,7 @@ namespace MyESGIApi
             string? Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
             string? ConnectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
             if (SecretKey == null) throw new Exception("JWT_SECRET environment variable not set");
+            if (Encoding.UTF8.GetBytes(SecretKey).Length < 32) throw new Exception("Secret key too short");
             if (Issuer == null) throw new Exception("JWT_ISSUER environment variable not set");
             if (Audience == null) throw new Exception("JWT_AUDIENCE environment variable not set");
             if (ConnectionString == null) throw new Exception("DEFAULT_CONNECTION environment variable not set");
@@ -54,10 +55,16 @@ namespace MyESGIApi
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
 
-            app.Run("http://0.0.0.0:8080");
+            if(app.Environment.IsDevelopment())
+            {
+                app.Run();
+            }
+            else
+            {
+                app.Run("http://0.0.0.0:8080");
+            }
         }
     }
 }
