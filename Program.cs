@@ -29,6 +29,22 @@ namespace MyESGIApi
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.RequireHttpsMetadata = false;
+
+                
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Cookies["AuthToken"];
+                        if(!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }   
+                        return Task.CompletedTask;
+                    }
+                };
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -54,6 +70,7 @@ namespace MyESGIApi
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
             app.MapControllers();
 

@@ -65,5 +65,54 @@ namespace MyESGIApi.Data
                 ";
             return await Task.Run(() => connection.Execute(query, post) > 0);
         }
+        public static bool FavoritePost(int postId, int userId)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                INSERT INTO favorites (postId, userId)
+                VALUES (@PostId, @UserId)
+                ";
+            return connection.Execute(query, new { PostId = postId, UserId = userId }) > 0;
+        }
+        public static bool UnfavoritePost(int postId, int userId)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                DELETE FROM favorites
+                WHERE postId = @PostId AND userId = @UserId
+                ";
+            return connection.Execute(query, new { PostId = postId, UserId = userId }) > 0;
+        }
+        public static bool CheckIfFavoritePost(int postId, int userId)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                SELECT COUNT(*) 
+                FROM favorites
+                WHERE postId = @PostId AND userId = @UserId
+                ";
+            return connection.ExecuteScalar<int>(query, new { PostId = postId, UserId = userId }) > 0;
+        }
+        public static List<Post> GetFavoritePosts(User user)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                SELECT 
+                    id AS Id, 
+                    title AS Title, 
+                    description AS Description, 
+                    authorId, 
+                    img_url AS ImgUrl, 
+                    post_date AS PostDate
+                FROM posts
+                WHERE id IN (
+                    SELECT postId
+                    FROM favorites
+                    WHERE userId = @UserId
+                )
+                ORDER BY post_date DESC
+                ";
+            return connection.Query<Post>(query, new { UserId = user.Id }).AsList();
+        }
     }
 }

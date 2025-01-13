@@ -4,7 +4,8 @@ using MyESGIApi.Data;
 using MyESGIApi.Models;
 using Utils;
 using Microsoft.AspNetCore.Authorization;
-using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using static Utils.Models;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
@@ -71,9 +72,13 @@ namespace MyESGIApi.Controllers
         [HttpPost(Name = "createpost")]
         public async Task<IActionResult> CreatePost(Post post)
         {
-            string? userId = HttpContext.User.FindFirst("UserId")?.Value;
-            if (userId == null) return Unauthorized("User not logged in");
-            post.AuthorId = int.Parse(userId);
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(userEmail);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
+            post.AuthorId = user.Id;
             var fsPost = post.ConvertToFsharpPost();
             if (!Utils.FormatChecker.CheckPostValid(fsPost))
             {
@@ -81,6 +86,55 @@ namespace MyESGIApi.Controllers
             }
             bool created = await PostsHelper.CreatePost(post);
             return created ? new OkResult() : new StatusCodeResult(500);
+        }
+        [Authorize]
+        [HttpGet("GetFavorites")]
+        public IActionResult GetUserFavorites()
+        {
+            var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (email == null) return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(email);
+            return Ok(new { favorites = PostsHelper.GetFavoritePosts(user) });
+        }
+        [Authorize]
+        [HttpPost("FavoritePost")]
+        public IActionResult FavoritePost(int postId)
+        {
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(userEmail);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
+            if (!PostsHelper.FavoritePost(postId, user.Id))
+                return new BadRequestObjectResult("Post not found");
+            return new OkResult();
+        }
+        [Authorize]
+        [HttpPost("UnfavoritePost")]
+        public IActionResult UnfavoritePost(int postId)
+        {
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(userEmail);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
+            if (!PostsHelper.UnfavoritePost(postId, user.Id))
+                return new BadRequestObjectResult("Post not found");
+            return new OkResult();
+        }
+        [Authorize]
+        [HttpPost("CheckIfFavorite")]
+        public IActionResult CheckIfFavorite(int postId)
+        {
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(userEmail);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
+            return Ok(new { isFavorite = PostsHelper.CheckIfFavoritePost(postId, user.Id) });
         }
     }
 }
