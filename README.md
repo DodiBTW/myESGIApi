@@ -8,7 +8,7 @@ The MyESGIApi is an Api service used by the MyESGI app for communicating with th
 ## Main functionalities
 - JWT Authentication
 - Secured and dockerised MSSQL instance 
-- Clean file and code architechture 
+- Clean file and code architecture 
 - Up to date packages
 
 
