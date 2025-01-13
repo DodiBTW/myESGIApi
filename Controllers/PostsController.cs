@@ -13,11 +13,11 @@ namespace MyESGIApi.Controllers
     public class PostsController : ControllerBase 
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Post>>> Get()
+        public async Task<ActionResult<IEnumerable<Models.Post>>> Get()
         {
             try
             {
-                IEnumerable<Post> posts = await Task.Run(() => PostsHelper.GetPosts());
+                IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPosts());
                 return Ok(posts);
             }
             catch(Exception ex)
@@ -26,11 +26,11 @@ namespace MyESGIApi.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Post?>> GetById(int id)
+        public async Task<ActionResult<Models.Post?>> GetById(int id)
         {
             try
             {
-                Post? post = await Task.Run(() => PostsHelper.GetPostById(id));
+                Models.Post? post = await Task.Run(() => PostsHelper.GetPostById(id));
                 if (post == null) return NotFound();
                 return Ok(post);
             }
@@ -40,11 +40,11 @@ namespace MyESGIApi.Controllers
             }
         }
         [HttpGet("author/{authorId}")]
-        public async Task<ActionResult<IEnumerable<Post>>> GetByAuthor(int authorId)
+        public async Task<ActionResult<IEnumerable<Models.Post>>> GetByAuthor(int authorId)
         {
             try
             {
-                IEnumerable<Post> posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(authorId));
+                IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(authorId));
                 return Ok(posts);
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace MyESGIApi.Controllers
         }
         [Authorize]
         [HttpGet("getuserposts")]
-        public async Task<ActionResult<IEnumerable<Post>>> GetUserPosts()
+        public async Task<ActionResult<IEnumerable<Models.Post>>> GetUserPosts()
         {
             try
             {
@@ -70,7 +70,7 @@ namespace MyESGIApi.Controllers
         }
         [Authorize]
         [HttpPost(Name = "createpost")]
-        public async Task<IActionResult> CreatePost(Post post)
+        public async Task<IActionResult> CreatePost(Models.Post post)
         {
             var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userEmail == null)
@@ -89,16 +89,17 @@ namespace MyESGIApi.Controllers
         }
         [Authorize]
         [HttpGet("GetFavorites")]
-        public IActionResult GetUserFavorites()
+        public async Task<IActionResult> GetUserFavorites()
         {
             var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (email == null) return Unauthorized("User not logged in");
-            var user = UserHelper.GetUserByEmail(email);
-            return Ok(new { favorites = PostsHelper.GetFavoritePosts(user) });
+            var user = await UserHelper.GetUserByEmail(email);
+            if (user == null) return new NotFoundObjectResult("User not found");
+            return Ok(new { favorites = await PostsHelper.GetFavoritePosts(user) });
         }
         [Authorize]
         [HttpPost("FavoritePost")]
-        public IActionResult FavoritePost(int postId)
+        public async Task<IActionResult> FavoritePost(int postId)
         {
             var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userEmail == null)
@@ -106,27 +107,27 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            if (!PostsHelper.FavoritePost(postId, user.Id))
+            if (!await PostsHelper.FavoritePost(postId, user.Id))
                 return new BadRequestObjectResult("Post not found");
             return new OkResult();
         }
         [Authorize]
         [HttpPost("UnfavoritePost")]
-        public IActionResult UnfavoritePost(int postId)
+        public async Task<IActionResult> UnfavoritePost(int postId)
         {
             var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userEmail == null)
                 return Unauthorized("User not logged in");
-            var user = UserHelper.GetUserByEmail(userEmail);
+            var user = await UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            if (!PostsHelper.UnfavoritePost(postId, user.Id))
+            if (!await PostsHelper.UnfavoritePost(postId, user.Id))
                 return new BadRequestObjectResult("Post not found");
             return new OkResult();
         }
         [Authorize]
         [HttpPost("CheckIfFavorite")]
-        public IActionResult CheckIfFavorite(int postId)
+        public async Task<IActionResult> CheckIfFavorite(int postId)
         {
             var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userEmail == null)
@@ -134,7 +135,7 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            return Ok(new { isFavorite = PostsHelper.CheckIfFavoritePost(postId, user.Id) });
+            return Ok(new { isFavorite = await PostsHelper.CheckIfFavoritePost(postId, user.Id) });
         }
     }
 }
