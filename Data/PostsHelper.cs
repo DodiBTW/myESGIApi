@@ -7,7 +7,7 @@ namespace MyESGIApi.Data
 {
     public class PostsHelper
     {
-        public static IEnumerable<Post> GetPosts()
+        public static async Task<IEnumerable<Post>> GetPosts()
         {
             using var connection = GetConnection();
             string query = @"
@@ -21,10 +21,10 @@ namespace MyESGIApi.Data
                 FROM posts
                 ORDER BY post_date DESC
                 ";
-            return connection.Query<Post>(query);
+            return await Task.Run(() => connection.Query<Post>(query));
         }
 
-        public static Post? GetPostById(int id)
+        public static async Task<Post?> GetPostById(int id)
         {
             using var connection = GetConnection();
             string query = @"
@@ -37,10 +37,10 @@ namespace MyESGIApi.Data
                     post_date AS PostDate
                 FROM posts
                 WHERE id = @Id";
-            return connection.QueryFirstOrDefault<Post>(query, new { Id = id });
+            return await Task.Run(() => connection.QueryFirstOrDefault<Post>(query, new { Id = id }));
         }
 
-        public static IEnumerable<Post> GetPostsByAuthorId(int authorId)
+        public static async Task<IEnumerable<Post>> GetPostsByAuthorId(int authorId)
         {
             using var connection = GetConnection();
             string query = @"
@@ -54,16 +54,16 @@ namespace MyESGIApi.Data
                 FROM posts
                 WHERE authorId = @AuthorId
                 ORDER BY post_date DESC";
-            return connection.Query<Post>(query, new { AuthorId = authorId });
+            return await Task.Run(() => connection.Query<Post>(query, new { AuthorId = authorId }));
         }
-        public static bool CreatePost(Post post)
+        public static async Task<bool> CreatePost(Post post)
         {
             using var connection = GetConnection();
             string query = @"
                 INSERT INTO posts (title, description, authorId, img_url, post_date)
                 VALUES (@Title, @Description, @AuthorId, @ImgUrl, @PostDate)
                 ";
-            return connection.Execute(query, post) > 0;
+            return await Task.Run(() => connection.Execute(query, post) > 0);
         }
     }
 }

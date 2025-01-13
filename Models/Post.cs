@@ -24,9 +24,9 @@ namespace MyESGIApi.Models
         {
             return new Utils.Models.Post(Id, Title, Description, AuthorId, ImgUrl, PostDate);
         }
-        public User? GetPostAuthor()
+        public async Task<User?> GetPostAuthor()
         {
-            return UserHelper.GetUserById(AuthorId);
+            return await UserHelper.GetUserById(AuthorId);
         }
     }
 }
