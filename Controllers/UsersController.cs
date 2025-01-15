@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MyESGIApi.Data;
 using MyESGIApi.Models;
 using MyESGIApi.Services;
+using System.Security.Claims;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
@@ -56,6 +57,15 @@ namespace MyESGIApi.Controllers
         public User? Get(int id)
         {
             return UserHelper.GetUserById(id);
+        }
+        [HttpGet("IsAdmin")]
+        public IActionResult IsAdmin()
+        {
+            var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (email == null) return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(email);
+            if (user == null) return new NotFoundObjectResult("User not found");
+            return Ok(new { isAdmin = user.IsAdmin() });
         }
     }
 }

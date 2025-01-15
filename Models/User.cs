@@ -34,5 +34,9 @@ namespace MyESGIApi.Models
             this.Password = newPass;
             UserHelper.UpdateUserPassword(Id, newPass);
         }
+        public bool IsAdmin()
+        {
+            return Role == "admin";
+        }
     }
 }
