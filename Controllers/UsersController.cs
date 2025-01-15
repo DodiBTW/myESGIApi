@@ -11,11 +11,14 @@ namespace MyESGIApi.Controllers
     public class UsersController : ControllerBase
     {
         [HttpPost("Login")]
-        public IActionResult Login(string email, string password)
+        public async Task<IActionResult> Login(string email, string password)
         {
-            if (!UserHelper.UserExists(email)) 
+            bool userExists = await UserHelper.UserExists(email);
+            if (!userExists) 
                 return new NotFoundObjectResult("User does not exist");
-            User user = UserHelper.GetUserByEmail(email);
+            User? user = await UserHelper.GetUserByEmail(email);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
             if (!user.CheckPassword(password)) 
                 return Unauthorized("Invalid Credentials");
             var token = JWTHelper.GenerateJWT(user);
@@ -29,11 +32,11 @@ namespace MyESGIApi.Controllers
             return new OkObjectResult(new {message = "Login sucessful"});
         }
         [HttpPost("Register")]
-        public IActionResult Register(string FirstName, string LastName, string Email, string Password)
+        public async Task<IActionResult> Register(string FirstName, string LastName, string Email, string Password)
         {
-            string resp = UserHelper.UserRegister(FirstName, LastName, Email, Password);
-            if (resp == "Account successfully created"){
-                User? user = UserHelper.GetUserByEmail(Email);
+            bool created = await UserHelper.UserRegister(FirstName, LastName, Email, Password);
+            if (created){
+                User? user = await UserHelper.GetUserByEmail(Email);
                 if (user == null) return new NotFoundObjectResult("User not found");
                 var token = JWTHelper.GenerateJWT(user);
                 Response.Cookies.Append("AuthToken", token, new CookieOptions
@@ -45,18 +48,18 @@ namespace MyESGIApi.Controllers
                 });
                 return new OkObjectResult(new { message = "Registered sucessfully"});
             }
-            return new NotFoundObjectResult(resp);
+            return new StatusCodeResult(500);
         }
         [HttpGet(Name = "GetUsers")]
-        public IEnumerable<User> Get()
+        public async Task<IEnumerable<User>> Get()
         {
-            return UserHelper.GetUsers();
+            return await UserHelper.GetUsers();
         }
 
         [HttpGet("{id}")]
-        public User? Get(int id)
+        public async Task<User?> Get(int id)
         {
-            return UserHelper.GetUserById(id);
+            return await UserHelper.GetUserById(id);
         }
         [HttpGet("IsAdmin")]
         public IActionResult IsAdmin()

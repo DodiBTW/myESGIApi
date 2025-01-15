@@ -8,7 +8,7 @@ The MyESGIApi is an Api service used by the MyESGI app for communicating with th
 ## Main functionalities
 - JWT Authentication
 - Secured and dockerised MSSQL instance 
-- Clean file and code architechture 
+- Clean file and code architecture 
 - Up to date packages
 
 
@@ -45,7 +45,7 @@ The MyESGIApi is an Api service used by the MyESGI app for communicating with th
       - mssql-data:/var/opt/mssql
     restart: always 
 ```
-Afterwards, you need to fill up the .env.example file with the correct credentials and rename it to .env
+Afterwards, you need enter the correct credentials in the .env.example file and rename it to .env
 
 Finally, run the following command: 
 >  docker compose up -d
