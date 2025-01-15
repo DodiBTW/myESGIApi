@@ -62,11 +62,11 @@ namespace MyESGIApi.Controllers
             return await UserHelper.GetUserById(id);
         }
         [HttpGet("IsAdmin")]
-        public IActionResult IsAdmin()
+        public async Task<IActionResult> IsAdmin()
         {
             var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (email == null) return Unauthorized("User not logged in");
-            var user = UserHelper.GetUserByEmail(email);
+            var user = await UserHelper.GetUserByEmail(email);
             if (user == null) return new NotFoundObjectResult("User not found");
             return Ok(new { isAdmin = user.IsAdmin() });
         }
