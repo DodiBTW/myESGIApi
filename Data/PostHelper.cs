@@ -5,7 +5,7 @@ using MyESGIApi.Models;
 using static MyESGIApi.Data.DatabaseHelper;
 namespace MyESGIApi.Data
 {
-    public class PostsHelper
+    public class PostHelper
     {
         public static async Task<IEnumerable<Post>> GetPosts()
         {
