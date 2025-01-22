@@ -52,10 +52,9 @@ namespace MyESGIApi.Data
         {
             using var connection = GetConnection();
             string query;
-            if (limit > 0)
-                query = SelectStatement + " LIMIT @Limit";
-            else
-                query = SelectStatement;
+            if (limit < 0)
+                limit = 999;
+            query = "SELECT TOP(@Limit) id AS Id, first_name AS FirstName, last_name AS LastName, password AS Password, role AS Role, date_joined AS JoinDate, email_address AS EmailAdress, profile_picture_url AS ProfilePictureUrl FROM users";
             return await Task.Run(() => connection.Query<User>(query, new { Limit = limit }));
         }
         public static async Task<IEnumerable<User>> GetUsersByString(string searchTerm, int page = 1)
