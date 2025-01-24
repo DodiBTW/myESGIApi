@@ -87,5 +87,13 @@ namespace MyESGIApi.Models
                 await RequestHelper.DeleteRequest(Id.Value);
             }
         }
+        public async Task<bool>SendCreateRequest()
+        {
+            return await RequestHelper.CreateRequest(this);
+        }
+        public async Task<bool> UpdateRequest()
+        {
+            return await RequestHelper.UpdateRequest(this);
+        }
     }
 }

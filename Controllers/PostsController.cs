@@ -17,7 +17,7 @@ namespace MyESGIApi.Controllers
         {
             try
             {
-                IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPosts());
+                IEnumerable<Models.Post> posts = await Task.Run(() => PostHelper.GetPosts());
                 return Ok(posts);
             }
             catch
@@ -30,7 +30,7 @@ namespace MyESGIApi.Controllers
         {
             try
             {
-                Models.Post? post = await Task.Run(() => PostsHelper.GetPostById(id));
+                Models.Post? post = await Task.Run(() => PostHelper.GetPostById(id));
                 if (post == null) return NotFound();
                 return Ok(post);
             }
@@ -44,7 +44,7 @@ namespace MyESGIApi.Controllers
         {
             try
             {
-                IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(authorId));
+                IEnumerable<Models.Post> posts = await Task.Run(() => PostHelper.GetPostsByAuthorId(authorId));
                 return Ok(posts);
             }
             catch
@@ -60,7 +60,7 @@ namespace MyESGIApi.Controllers
             {
                 string? userId = HttpContext.User.FindFirst("UserId")?.Value;
                 if (userId == null) return new StatusCodeResult(404);
-                    var posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(int.Parse(userId)));
+                    var posts = await Task.Run(() => PostHelper.GetPostsByAuthorId(int.Parse(userId)));
                     return Ok(posts);
                 }
             catch
@@ -84,7 +84,7 @@ namespace MyESGIApi.Controllers
             {
                 return new BadRequestObjectResult("Invalid post format");
             }
-            bool created = await PostsHelper.CreatePost(post);
+            bool created = await PostHelper.CreatePost(post);
             return created ? new OkResult() : new StatusCodeResult(500);
         }
         [Authorize]
@@ -95,7 +95,7 @@ namespace MyESGIApi.Controllers
             if (email == null) return Unauthorized("User not logged in");
             var user = await UserHelper.GetUserByEmail(email);
             if (user == null) return new NotFoundObjectResult("User not found");
-            return Ok(new { favorites = await PostsHelper.GetFavoritePosts(user) });
+            return Ok(new { favorites = await PostHelper.GetFavoritePosts(user) });
         }
         [Authorize]
         [HttpPost("FavoritePost")]
@@ -107,7 +107,7 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            if (!await PostsHelper.FavoritePost(postId, user.Id))
+            if (!await PostHelper.FavoritePost(postId, user.Id))
                 return new BadRequestObjectResult("Post not found");
             return new OkResult();
         }
@@ -121,7 +121,7 @@ namespace MyESGIApi.Controllers
             var user = await UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            if (!await PostsHelper.UnfavoritePost(postId, user.Id))
+            if (!await PostHelper.UnfavoritePost(postId, user.Id))
                 return new BadRequestObjectResult("Post not found");
             return new OkResult();
         }
@@ -135,7 +135,7 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            return Ok(new { isFavorite = await PostsHelper.CheckIfFavoritePost(postId, user.Id) });
+            return Ok(new { isFavorite = await PostHelper.CheckIfFavoritePost(postId, user.Id) });
         }
     }
 }

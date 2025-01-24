@@ -21,6 +21,7 @@ namespace MyESGIApi.Services
                 new Claim(ClaimTypes.NameIdentifier, user.EmailAdress),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
