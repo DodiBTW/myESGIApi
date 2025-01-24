@@ -114,5 +114,15 @@ namespace MyESGIApi.Data
                 ";
             return await Task.Run(() => connection.Query<Post>(query, new { UserId = user.Id }).AsList());
         }
+        public Task<int> GetPostFavorites(int postId)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                SELECT COUNT(*)
+                FROM favorites
+                WHERE postId = @PostId
+                ";
+            return Task.Run(() => connection.ExecuteScalar<int>(query, new { PostId = postId }));
+        }
     }
 }

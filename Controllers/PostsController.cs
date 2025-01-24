@@ -20,7 +20,7 @@ namespace MyESGIApi.Controllers
                 IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPosts());
                 return Ok(posts);
             }
-            catch(Exception ex)
+            catch
             {
                 return new StatusCodeResult(500);
             }
@@ -34,7 +34,7 @@ namespace MyESGIApi.Controllers
                 if (post == null) return NotFound();
                 return Ok(post);
             }
-            catch(Exception ex)
+            catch
             {
                 return new StatusCodeResult(500);
             }
@@ -47,7 +47,7 @@ namespace MyESGIApi.Controllers
                 IEnumerable<Models.Post> posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(authorId));
                 return Ok(posts);
             }
-            catch (Exception ex)
+            catch
             {
                 return new StatusCodeResult(500);
             }
@@ -63,7 +63,7 @@ namespace MyESGIApi.Controllers
                     var posts = await Task.Run(() => PostsHelper.GetPostsByAuthorId(int.Parse(userId)));
                     return Ok(posts);
                 }
-            catch(Exception ex)
+            catch
             {
                 return new StatusCodeResult(500);
             }

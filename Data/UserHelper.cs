@@ -12,7 +12,7 @@ namespace MyESGIApi.Data
 {
     public class UserHelper
     {
-        private static string SelectStatement = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, password AS Password, role AS Role, date_joined AS JoinDate, email_address AS EmailAdress, profile_picture_url AS ProfilePictureUrl FROM users ";
+        private static readonly string SelectStatement = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, password AS Password, role AS Role, date_joined AS JoinDate, email_address AS EmailAdress, profile_picture_url AS ProfilePictureUrl FROM users ";
         public static async Task<bool> UserRegister(string first_name, string last_name, string email, string password, string? profile_picture_url = null, string? role = "student")
         {
             bool userExists = await Task.Run(() => UserExists(email));
@@ -53,7 +53,7 @@ namespace MyESGIApi.Data
             using var connection = GetConnection();
             string query;
             if (limit > 0)
-                query = SelectStatement + " LIMIT @Limit";
+                query = "SELECT TOP(@Limit) id as Id, first_name as FirstName, last_name as LastName, email_address as EmailAdress, role as Role, date_joined as JoinDate, profile_picture_url as ProfilePictureUrl FROM users";
             else
                 query = SelectStatement;
             return await Task.Run(() => connection.Query<User>(query, new { Limit = limit }));
@@ -61,7 +61,7 @@ namespace MyESGIApi.Data
         public static async Task<IEnumerable<User>> GetUsersByString(string searchTerm, int page = 1)
         {
             using var connection = GetConnection();
-            string query = SelectStatement + @" WHERE first_name LIKE @SearchTerm OR last_name LIKE @SearchTerm LIMIT 20 OFFSET @Offset";
+            string query = "SELECT TOP(20) id as Id, first_name as FirstName, last_name as LastName, email_address as EmailAdress, role as Role, date_joined as JoinDate, profile_picture_url as ProfilePictureUrl FROM users WHERE first_name LIKE @SearchTerm OR last_name LIKE @SearchTerm OFFSET @Offset";
             return await Task.Run(() => connection.Query<User>(query, new { SearchTerm = $"%{searchTerm}%", Offset = (page - 1) * 20 }));
         }
         public static async Task UpdateUserPassword(int user_id, string newHashedPassword)
