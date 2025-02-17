@@ -57,7 +57,6 @@ namespace MyESGIApi.Models
                 equipment.Available = false;
                 equipment.UpdateEquipment();
             }
-
         }
         public void ReturnEquipment()
         {
@@ -78,14 +77,8 @@ namespace MyESGIApi.Models
         }
         public async Task Delete()
         {
-            if (Id == null)
-            {
-                throw new Exception("Request not found");
-            }
-            else
-            {
-                await RequestHelper.DeleteRequest(Id.Value);
-            }
+            if (Id == null) throw new Exception("Request not found");
+            await RequestHelper.DeleteRequest(Id.Value);
         }
         public async Task SendCreateRequest()
         {

@@ -12,6 +12,7 @@ namespace MyESGIApi.Controllers
     [Route("posts")]
     public class PostsController : ControllerBase 
     {
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Models.Post>>> Get()
         {
@@ -136,6 +137,25 @@ namespace MyESGIApi.Controllers
             if (user == null)
                 return new NotFoundObjectResult("User not found");
             return Ok(new { isFavorite = await PostHelper.CheckIfFavoritePost(postId, user.Id) });
+        }
+        [Authorize]
+        [HttpDelete("DeletePost")]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userEmail == null)
+                return Unauthorized("User not logged in");
+            var user = UserHelper.GetUserByEmail(userEmail);
+            if (user == null)
+                return new NotFoundObjectResult("User not found");
+            var post = await PostHelper.GetPostById(postId);
+            if (post == null)
+                return new NotFoundObjectResult("Post not found");
+            if (post.AuthorId != user.Id)
+                return new UnauthorizedObjectResult("User not authorized to delete post");
+            if (!await PostHelper.DeletePost(postId))
+                return new StatusCodeResult(500);
+            return new OkResult();
         }
     }
 }

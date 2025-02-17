@@ -25,7 +25,7 @@ namespace MyESGIApi.Controllers
             Response.Cookies.Append("AuthToken", token, new CookieOptions
             {
                 HttpOnly = true,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddMinutes(60)
             });
@@ -42,7 +42,7 @@ namespace MyESGIApi.Controllers
                 Response.Cookies.Append("AuthToken", token, new CookieOptions
                 {
                     HttpOnly = true,
-                    SameSite = SameSiteMode.Lax,
+                    SameSite = SameSiteMode.None,
                     Secure = true,
                     Expires = DateTime.UtcNow.AddMinutes(60)
                 });
@@ -69,6 +69,15 @@ namespace MyESGIApi.Controllers
             var user = await UserHelper.GetUserByEmail(email);
             if (user == null) return new NotFoundObjectResult("User not found");
             return Ok(new { isAdmin = user.IsAdmin() });
+        }
+        [HttpGet("IsLoggedIn")]
+        public IActionResult IsLoggedIn()
+        {
+            var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (email == null) return Ok(new { isLoggedIn = false , message = "Mail not found"});
+            var user = UserHelper.GetUserByEmail(email);
+            if (user == null) return Ok(new { isLoggedIn = false , message = "Mail not corresponding to a user"});
+            return Ok(new { isLoggedIn = true });
         }
     }
 }

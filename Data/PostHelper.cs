@@ -23,7 +23,15 @@ namespace MyESGIApi.Data
                 ";
             return await Task.Run(() => connection.Query<Post>(query));
         }
-
+        public static async Task<bool> DeletePost(int id)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                DELETE FROM posts
+                WHERE id = @Id
+                ";
+            return await Task.Run(() => connection.Execute(query, new { Id = id }) > 0);
+        }
         public static async Task<Post?> GetPostById(int id)
         {
             using var connection = GetConnection();
