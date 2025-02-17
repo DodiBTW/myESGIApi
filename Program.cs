@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using DotNetEnv;
 namespace MyESGIApi
@@ -25,22 +26,22 @@ namespace MyESGIApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddLogging();
-            
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = false;
 
-                
+
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
                         var token = context.Request.Cookies["AuthToken"];
-                        if(!string.IsNullOrEmpty(token))
+                        if (!string.IsNullOrEmpty(token))
                         {
                             context.Token = token;
-                        }   
+                        }
                         return Task.CompletedTask;
                     }
                 };
@@ -74,7 +75,7 @@ namespace MyESGIApi
             app.UseAuthorization();
             app.MapControllers();
 
-            if(app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 app.Run();
             }
