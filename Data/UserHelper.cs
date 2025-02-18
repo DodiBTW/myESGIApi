@@ -42,6 +42,15 @@ namespace MyESGIApi.Data
             string query = SelectStatement + " WHERE email_address = @Email";
             return await Task.Run(() => connection.QueryFirstOrDefault<User>(query, new { Email = email }));
         }
+        public static async Task<bool> IsValidated(int userId)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                SELECT COUNT(*) 
+                FROM users 
+                WHERE id = @Id AND validated = 1";
+            return await Task.Run(() => connection.ExecuteScalar<int>(query, new { Id = userId })) > 0;
+        }
         public static async Task<User?> GetUserById(int id)
         {
             using var connection = GetConnection();
@@ -71,6 +80,24 @@ namespace MyESGIApi.Data
                 SET password = @Password
                 WHERE id = @Id";
             await Task.Run(() => connection.Execute(query, new { Password = newHashedPassword, Id = user_id }));
+        }
+        public static async Task ValidateUser(int user_id)
+        {
+            using var connection = GetConnection();
+            string query = @"
+                UPDATE users
+                SET validated = 1
+                WHERE id = @Id";
+            await Task.Run(() => connection.Execute(query, new { Id = user_id }));
+        }
+        public static async Task<User[]> GetUnvalidatedUsers()
+        {
+            using var connection = GetConnection();
+            string query = @"
+                SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email_address AS EmailAdress, role AS Role, date_joined AS JoinDate, profile_picture_url AS ProfilePictureUrl
+                FROM users
+                WHERE validated = 0";
+            return await Task.Run(() => connection.Query<User>(query).ToArray());
         }
     }
 }

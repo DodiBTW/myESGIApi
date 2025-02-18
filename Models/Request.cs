@@ -54,8 +54,7 @@ namespace MyESGIApi.Models
             Status = "Validated";
             foreach (Equipment equipment in EquipmentList)
             {
-                equipment.Available = false;
-                equipment.UpdateEquipment();
+                equipment.ReduceByOne();
             }
         }
         public void ReturnEquipment()
@@ -63,8 +62,7 @@ namespace MyESGIApi.Models
             Status = "Returned";
             foreach (Equipment equipment in EquipmentList)
             {
-                equipment.Available = true;
-                equipment.UpdateEquipment();
+                equipment.IncreaseByOne();
             }
         }
         public void SetComment(string comment)

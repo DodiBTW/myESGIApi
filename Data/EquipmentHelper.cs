@@ -4,6 +4,28 @@ namespace MyESGIApi.Data
 {
     public class EquipmentHelper
     {
+        public static void AddEquipment(Equipment equipment)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            string query = @"
+                INSERT INTO equipment (equipment_name, available, img_url)
+                VALUES (@EquipmentName, @Available, @ImgUrl)
+                ";
+            connection.Execute(query, equipment);
+        }
+        public static List<Equipment> GetAllEquipment()
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            string query = @"
+                SELECT
+                    id AS Id,
+                    equipment_name AS EquipmentName,
+                    available AS Available,
+                    img_url AS ImgUrl
+                FROM equipment
+                ";
+            return connection.Query<Equipment>(query).ToList();
+        }
         public static List<Equipment> GetAllEquipmentTypes()
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -36,6 +58,26 @@ namespace MyESGIApi.Data
                 WHERE equipment_name = @EquipmentName AND available = 1
                 ";
             return connection.QueryFirstOrDefault<int>(query);
+        }
+        public static void ReduceEquipmentByName(string name)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            string query = @"
+                UPDATE equipment
+                SET available = available - 1
+                WHERE equipment_name = @Name
+                ";
+            connection.Execute(query, new { Name = name });
+        }
+        public static void IncreaseEquipmentByName(string name)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            string query = @"
+                UPDATE equipment
+                SET available = available + 1
+                WHERE equipment_name = @Name
+                ";
+            connection.Execute(query, new { Name = name });
         }
         public static Equipment? GetEquipmentByName(string equipmentName, int amountNeeded)
         {

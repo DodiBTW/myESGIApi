@@ -15,6 +15,8 @@ namespace MyESGIApi
             string? Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             string? Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
             string? ConnectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+            var CORSOriginLink = Environment.GetEnvironmentVariable("SiteOrigin");
+            if (CORSOriginLink == null) throw new Exception("CORSOriginLink is not set");
             if (SecretKey == null) throw new Exception("JWT_SECRET environment variable not set");
             if (Encoding.UTF8.GetBytes(SecretKey).Length < 32) throw new Exception("Secret key too short");
             if (Issuer == null) throw new Exception("JWT_ISSUER environment variable not set");
@@ -26,18 +28,18 @@ namespace MyESGIApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddLogging();
-
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll",
-                    builder =>
+                options.AddPolicy("AllowSpecificOrigin",
+                    policy =>
                     {
-                        builder.AllowAnyOrigin()
-                               .AllowAnyMethod()
-                               .AllowAnyHeader()
-                               .AllowCredentials();
+                        policy.WithOrigins(CORSOriginLink)
+                              .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") 
+                              .WithHeaders("Authorization", "Content-Type") 
+                              .AllowCredentials();
                     });
             });
+
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -75,6 +77,8 @@ namespace MyESGIApi
             builder.Services.AddAuthorization();
             var app = builder.Build();
 
+
+            app.UseCors("AllowSpecificOrigin");
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

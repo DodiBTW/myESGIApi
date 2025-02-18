@@ -69,9 +69,8 @@ namespace MyESGIApi.Controllers
                 return new StatusCodeResult(500);
             }
         }
-        [Authorize]
         [HttpPost(Name = "createpost")]
-        public async Task<IActionResult> CreatePost(Models.Post post)
+        public async Task<IActionResult> CreatePost(string title, string description, string? imgurl)
         {
             var userEmail = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userEmail == null)
@@ -79,7 +78,7 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(userEmail);
             if (user == null)
                 return new NotFoundObjectResult("User not found");
-            post.AuthorId = user.Id;
+            var post = new Models.Post(0,title,description,user.Id, imgurl, DateTime.UtcNow);
             var fsPost = post.ConvertToFsharpPost();
             if (!Utils.FormatChecker.CheckPostValid(fsPost))
             {

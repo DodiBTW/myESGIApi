@@ -4,6 +4,7 @@ using MyESGIApi.Data;
 using MyESGIApi.Models;
 using MyESGIApi.Services;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 namespace MyESGIApi.Controllers
 {
     [ApiController]
@@ -21,6 +22,9 @@ namespace MyESGIApi.Controllers
                 return new NotFoundObjectResult("User not found");
             if (!user.CheckPassword(password)) 
                 return Unauthorized("Invalid Credentials");
+            var valid = await UserHelper.IsValidated(user.Id);
+            if (!valid)
+                return Unauthorized("User not validated");
             var token = JWTHelper.GenerateJWT(user);
             Response.Cookies.Append("AuthToken", token, new CookieOptions
             {
@@ -38,14 +42,6 @@ namespace MyESGIApi.Controllers
             if (created){
                 User? user = await UserHelper.GetUserByEmail(Email);
                 if (user == null) return new NotFoundObjectResult("User not found");
-                var token = JWTHelper.GenerateJWT(user);
-                Response.Cookies.Append("AuthToken", token, new CookieOptions
-                {
-                    HttpOnly = true,
-                    SameSite = SameSiteMode.None,
-                    Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(60)
-                });
                 return new OkObjectResult(new { message = "Registered sucessfully"});
             }
             return new StatusCodeResult(500);
@@ -78,6 +74,38 @@ namespace MyESGIApi.Controllers
             var user = UserHelper.GetUserByEmail(email);
             if (user == null) return Ok(new { isLoggedIn = false , message = "Mail not corresponding to a user"});
             return Ok(new { isLoggedIn = true });
+        }
+        [HttpPost("Logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AuthToken");
+            return Ok(new { message = "Logged out" });
+        }
+        [Authorize]
+        [HttpPost("Validate")]
+        public async Task<IActionResult> Validate(int id)
+        {
+            var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (email == null) return Unauthorized("Invalid Credentials");
+            var user = await UserHelper.GetUserByEmail(email);
+            if (user == null) return new NotFoundObjectResult("User not found");
+            if (!user.IsAdmin()) return Unauthorized("Not an admin");
+            var userToValidate = await UserHelper.GetUserById(id);
+            if (userToValidate == null) return new NotFoundObjectResult("User not found");
+            await UserHelper.ValidateUser(id);
+            return new OkObjectResult(new { message = "User validated" });
+        }
+        [Authorize]
+        [HttpGet("GetUnvalidated")]
+        public async Task<ActionResult<User[]>> GetUnvalidatedUsers()
+        {
+            var email = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (email == null) return Unauthorized("Invalid Credentials");
+            var user = await UserHelper.GetUserByEmail(email);
+            if (user == null) return new NotFoundObjectResult("User not found");
+            if (!user.IsAdmin()) return Unauthorized("Not an admin");
+            var unvalidatedUsers = await UserHelper.GetUnvalidatedUsers();
+            return Ok(unvalidatedUsers);
         }
     }
 }

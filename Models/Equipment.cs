@@ -5,10 +5,10 @@ namespace MyESGIApi.Models
     {
         public int? Id { get; set; }
         public string EquipmentName { get; set; }
-        public bool? Available { get; set; }
+        public int Available { get; set; }
         public string? ImgUrl { get; set; }
         public Equipment() { }
-        public Equipment(string equipmentName, bool available, string imgUrl)
+        public Equipment(string equipmentName, int available, string imgUrl)
         {
             EquipmentName = equipmentName;
             Available = available;
@@ -17,12 +17,20 @@ namespace MyESGIApi.Models
         public Equipment(string equipmentName)
         {
             EquipmentName = equipmentName;
-            Available = true;
+            Available = EquipmentHelper.GetEquipmentAmountByName(equipmentName);
             ImgUrl = EquipmentHelper.GetEquipmentImageByName(equipmentName);
         }
         public bool? IsAvailable()
         {
-            return Available;
+            return Available > 0;
+        }
+        public void ReduceByOne()
+        {
+            EquipmentHelper.ReduceEquipmentByName(EquipmentName);
+        }
+        public void IncreaseByOne()
+        {
+            EquipmentHelper.IncreaseEquipmentByName(EquipmentName);
         }
         public int GetAmountAvailable()
         {
