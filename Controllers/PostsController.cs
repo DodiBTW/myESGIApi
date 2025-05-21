@@ -69,6 +69,7 @@ namespace MyESGIApi.Controllers
                 return new StatusCodeResult(500);
             }
         }
+        [Authorize]
         [HttpPost(Name = "createpost")]
         public async Task<IActionResult> CreatePost(string title, string description, string? imgurl)
         {
